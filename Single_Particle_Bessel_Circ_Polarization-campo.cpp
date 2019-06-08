@@ -28,7 +28,6 @@
 #define N 3     //numero de campos electricos leidos
 #define eps0 8.8541878176e-12  // Electric permitivity
 #define npe 1000	//numero de puntos espectro energetico
-double m_gm=16;	//maximo valor de gamma alcanzado en el sistema (para realizar el espectro energetico)
 
 using namespace std;
 
@@ -93,14 +92,19 @@ long double Te=2;//100.*1000*1.6022e-19; // (Temperature Final (estimada) in KeV
 double vte=sqrt(Te0*1.6e-19/me); // electron thermal velocity (m/s) ;
 double lambda_Debye=sqrt((eps0*Te)/(1e6*Ne*pow(-q,2)));
 
+//==================== crear muchos archivos de salida ===========
+char buffer[80]={0}; // lo usaremos para guardar el nombre del fichero
 
 
-
-FILE *out,*out2,*out3,*out4,*out5,*out6,*out7,*out8,*out9,*out10,*out11;
+FILE *out2,*out3,*out4,*out5,*out6,*out7,*out8,*out11;
 int main()
 {
+
+   for (int i = 0; i < Ne; i++){
+       sprintf(Posiciones/buffer, "%02d.txt", i+1); // Ahora tenemos en buffer = "holaXX.txt"
+       fopen(buffer, "w");
+    }
     
-    out=fopen("Results.txt","w");
     out2=fopen("B_rz_i.txt","w");
     out3=fopen("B_rz_f.txt","w");
     out4=fopen("Posiciones_0.txt","w");
@@ -108,8 +112,6 @@ int main()
     out6=fopen("Posiciones_50.txt","w");
     out7=fopen("Posiciones_75.txt","w");
     out8=fopen("Posiciones_100.txt","w");
-    out9=fopen("Espectro_energetico_inicial.txt","w");
-    out10=fopen("Espectro_energetico_final.txt","w");
     out11=fopen("B_z_i_f.txt","w");
 
 //***********************************************
@@ -198,7 +200,6 @@ int main()
 	if(i<=npe){
 		ene_cont[i]=0; //inicializacion para conteo energetico
 		g_max[i]=gmax;
-		gmax=gmax+(m_gm/npe);
 
 		}
     }
@@ -216,26 +217,6 @@ for(ik=0;ik<kt;ik++){ // Time Cycle for integration of motion equation
     for (ie = 0; ie < Ne; ++ie)  MOTION();  //ciclo para que en ik pase por todos los electrones     
 
 
-		if(cont_e_gm>=10){
-			ref=ik;
-			for(int i=ref;i<2*ref;i++){
-				ik=ik-1;
-				tm=ik*dt;          // current time
-				kk=ik-kp;          // Index for electric field
-				for (ie = 0; ie < Ne; ++ie){
-
-					if(e_gm[ie]==1){
-						printf("x=%e y=%e z=%e	ik=%d\n",x[ie]*rl*100,y[ie]*rl*100,z[ie]*rl*100,ik);
-						MOTION();
-						}
-
-					}
- 				   if(ik==kp+m-1) kp=kp+m;
-				}
-		
-		exit(1);
-		}
-
     PRINT_POSITION();   //imprime archivos para las posiciones en diferentes momentos 
 
     if(ik%12000==0)printf(" %f %c \n", ik*pow(kt,-1)*100,'%');
@@ -250,7 +231,7 @@ for(ik=0;ik<kt;ik++){ // Time Cycle for integration of motion equation
         kp=kp+m;
     }
 }
-    
+
     return 0;
 }
 
@@ -758,8 +739,6 @@ void PRINT_POSITION(void){
         for (int i = 0; i < Ne; ++i){
             if (e_out[i]==1){} //no hacer nada
             else{    
-	     for(int ii=1;ii<npe;ii++)if(gm[i]>g_max[ii-1] & gm[i]<g_max[ii])ene_cont[ii]=ene_cont[ii]+1; 	//ciclo para hacer espectro energetico	
-		
              fprintf(out4,"%e    ",x[i]*rl*100.);
              fprintf(out4,"%e    ",y[i]*rl*100.);
              fprintf(out4,"%e    ",z[i]*rl*100.);
@@ -768,8 +747,6 @@ void PRINT_POSITION(void){
             }
         }
         fclose(out4);  
-	for(int ii=1;ii<npe;++ii)fprintf(out9,"%e    %e    %e    \n",g_max[ii],(g_max[ii]-1.)*511,ene_cont[ii]/npe);
-	fclose(out9);
     } 
     
     if (ik==kt/4){
@@ -817,27 +794,18 @@ void PRINT_POSITION(void){
     if (ik==kt-1){
 
 	 gmax=1.0;
-         for (int i = 0; i < npe; ++i){  
-		ene_cont[i]=0; //inicializacion para conteo energetico
-		g_max[i]=gmax;
-		gmax=gmax+(m_gm/npe);
-         }
 
         for (int i = 0; i < Ne; ++i){
             if (e_out[i]==1){} //no hacer nada
             else{             
-
-	     for(int ii=1;ii<npe;ii++)if(gm[i]>g_max[ii-1] & gm[i]<g_max[ii])ene_cont[ii]=ene_cont[ii]+1; 	//ciclo para hacer espectro energetico		
 					
              fprintf(out8,"%e    ",x[i]*rl*100.);
              fprintf(out8,"%e    ",y[i]*rl*100.);
              fprintf(out8,"%e    ",z[i]*rl*100.);
-	     fprintf(out8,"%e    ",gm[i]);
+	     	 fprintf(out8,"%e    ",gm[i]);
              fprintf(out8,"%e    \n",(gm[i]-1.)*511.);
             }             
         }
         fclose(out8);
-	for(int ii=1;ii<npe;++ii)fprintf(out10,"%e    %e    %e    \n",g_max[ii],(g_max[ii]-1.)*511,ene_cont[ii]/npe);
-	fclose(out10);
     } 
 }
