@@ -1,5 +1,6 @@
 #!/bin/bash
-	# Ordena los archivos creados por el codigo .cpp
+	'''ESTE BASH ME ORDENA LOS ARCHIVOS EN LA CARPTA CORRESPONDIENTE '''
+
 	#mkdir datos	
 	#mkdir testing
 	#mkdir Posiciones
@@ -11,7 +12,7 @@
 
 	for i in Posi*.txt;
 	do
-	mv $i ./Posiciones/;
+	mv $i ./electrones_diferentes_tiempo/;
 	done
 
 	for i in B_*.txt;
@@ -19,4 +20,4 @@
 	mv $i ./testing/;
 	done
 
-
+	mv Electron_test.txt ./testing/;
