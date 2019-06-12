@@ -1,16 +1,42 @@
+'''================================================================================
+  ================================================================================
+    ESTE PRGRAMA LEE LOS ARCHIVOS DE LA TRAYECTORIA PARA 100 ELECTRONES Y LOS 
+	UTILIZA COMO DATAFRAME.
+
+    GRAFICA LOS ARCHIVOS LEIDOS, SU EVOLUCION ESPACIAL Y ENERGETICO. PARA TODA LA 
+	ESCALA DE TIEMPO.
+  ================================================================================
+  ================================================================================'''
+
+##***********************************************
+#     SE IMPORTAN LAS LIBRERIAS NECESARIAS 
+#***********************************************
+
 import pandas as pd
 from pandas import *
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
 import numpy as np
-import glob
+import glob #LIBRERIA PARA LEER TODOS LOS .txt
 
-files = glob.glob('*.txt') # IPython magic
+
+##***********************************************
+#     LECTRUTA DE LOS ARCHIVOS ALMACENANDOLOS 
+#	EN LA VARIABLE ele, UTILIZANDO PANDAS
+#***********************************************
+
+files = glob.glob('*9.txt') 
 print(files)
 ele = ([pd.read_csv(f, sep=" ", names=['tiempo','Posicion x','Posicion y','Posicion z', 'gamma']) for f in files])
 
+
+##***********************************************
+#     FUNCIONES 
+#***********************************************
+
 def gm(x):
-    
+    '''ESTA FUNCION REALIZA UN GRAFICO 2D DE LA EVOLUCION 
+	ENEGETICA  DEL ELECTRON SELECCIONADO CON LA VARIAIBLE x'''
     plt.figure(figsize=(15,10))
     
     plt.tick_params(labelsize = 20)
@@ -24,7 +50,8 @@ def gm(x):
 
 
 def tray(x):
-    
+     '''ESTA FUNCION REALIZA UN GRAFICO 2D DE LA EVOLUCION 
+	ESPACIAL DEL ELECTRON SELECCIONADO CON LA VARIAIBLE x'''   
     fig = plt.figure(figsize=(13,13))
     ax = fig.add_subplot(111, projection="3d")
 
@@ -39,10 +66,13 @@ def tray(x):
     ax.plot3D(xline, yline, zline, 'r')
 
     plt.savefig('graficas_trayectoria/trayectoria_{0}.jpg'.format(x))
-print('hola-0')
+
+##***********************************************
+#     CICLO PARA PASAR POR TODOS LOS ARCHIVOS  
+#***********************************************
+
 for i in range(len(files)):
 	tray(i)
-	print('hola')
-    #gm(i)
+    	gm(i)
 		
     
